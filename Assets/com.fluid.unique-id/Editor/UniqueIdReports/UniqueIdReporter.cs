@@ -22,7 +22,8 @@ namespace CleverCrow.Fluid.UniqueIds {
                 .ToArray();
         }
 
-        public IdReport GetReport () {
+        public IdReport GetReport (bool includeInactiveObjects = false) {
+            var findObjectsInactive = includeInactiveObjects ? FindObjectsInactive.Include : FindObjectsInactive.Exclude;
             var idCounter = new Dictionary<string, int>();
             var sceneIds = new Dictionary<string, List<ReportId>>();
 
@@ -33,7 +34,7 @@ namespace CleverCrow.Fluid.UniqueIds {
 
                 var idReports = new List<ReportId>();
 
-                var ids = Object.FindObjectsOfType<UniqueId>().ToList();
+                var ids = Object.FindObjectsByType<UniqueId>(findObjectsInactive, FindObjectsSortMode.None).ToList();
                 ids.ForEach(id => {
                     var key = id.Id ?? "null";
                     if (!idCounter.ContainsKey(key)) idCounter[key] = 0;

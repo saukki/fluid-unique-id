@@ -10,6 +10,10 @@
     margin-bottom: 10px;
 }
 
+.p-window__toggles {
+    margin-bottom: 10px;
+}
+
 .p-window__message {
     margin-bottom: 10px;
 }

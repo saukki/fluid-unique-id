@@ -10,6 +10,7 @@
             </Box>
 
             <VisualElement class="p-window__buttons" name="buttons" />
+            <Toggle class="p-window__toggles" name="toggle-include-inactive-objects" label="Include inactive objects in the search" />
             <TextElement class="p-window__message" name="search-text" />
             <VisualElement name="search-results" />
             <TextElement

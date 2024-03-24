@@ -14,16 +14,18 @@ namespace CleverCrow.Fluid.UniqueIds.UniqueIdRepairs {
         private readonly VisualElement _root;
         private readonly ReportScene _scene;
         private readonly TextElement _elId;
-
+        private bool _includeInactiveObjects;
         public string Id { get; }
 
         public UniqueIdError (
             VisualElement container,
             ReportScene scene,
             ReportId report,
-            Action<ReportId> onFixId) : base(container) {
+            Action<ReportId> onFixId, 
+            bool includeInactiveObjects = false) : base(container) {
             _report = report;
             _onFixId = onFixId;
+            _includeInactiveObjects = includeInactiveObjects;
             _scene = scene;
             Id = _report.Id;
 
@@ -70,8 +72,9 @@ namespace CleverCrow.Fluid.UniqueIds.UniqueIdRepairs {
         }
 
         private UniqueId FindId () {
+            var findObjectsInactive = _includeInactiveObjects ? FindObjectsInactive.Include : FindObjectsInactive.Exclude;
             var result = Object
-                .FindObjectsOfType<UniqueId>()
+                .FindObjectsByType<UniqueId>(findObjectsInactive, FindObjectsSortMode.None)
                 .ToList()
                 .Find(uniqueId => {
                     var path = ReportId.GetPath(uniqueId.gameObject);

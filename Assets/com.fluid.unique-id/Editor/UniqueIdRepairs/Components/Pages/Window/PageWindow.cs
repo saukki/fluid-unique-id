@@ -2,15 +2,18 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace CleverCrow.Fluid.UniqueIds.UniqueIdRepairs {
     public class PageWindow : ComponentBase {
         private readonly List<Button> _buttons = new List<Button>();
+        private readonly List<Toggle> _toggles = new List<Toggle>();       
         private readonly VisualElement _elSearchResults;
         private readonly List<SceneSearch> _searchedScenes = new List<SceneSearch>();
         private readonly TextElement _elSearchText;
+        private bool includeInactiveObjects;
 
         public PageWindow (VisualElement container) : base(container) {
             _elSearchResults = container.Query<VisualElement>("search-results").First();
@@ -18,6 +21,16 @@ namespace CleverCrow.Fluid.UniqueIds.UniqueIdRepairs {
 
             var buttons = container.Query<VisualElement>("buttons").First();
             _buttons.Add(new Button(buttons, "Search", Search));
+
+            var toggleElement = container.Query<Toggle>("toggle-include-inactive-objects").First();
+            var toggle = toggleElement.Q<Toggle>();
+            _toggles.Add(toggle);
+
+            toggle.RegisterValueChangedCallback(OnToggleValueChanged);
+        }
+
+        private void OnToggleValueChanged(ChangeEvent<bool> evt) {
+            includeInactiveObjects = evt.newValue;
         }
 
         public void Search (string path) {
@@ -45,7 +58,7 @@ namespace CleverCrow.Fluid.UniqueIds.UniqueIdRepairs {
             ClearSearchResults();
 
             var search = new UniqueIdReporter(sceneAssets);
-            var report = search.GetReport();
+            var report = search.GetReport(includeInactiveObjects);
             var duplicateIDs = report.DuplicateIDs;
             report.Scenes.ForEach((scene) => {
                 if (scene.Errors.Count == 0) return;
@@ -57,7 +70,7 @@ namespace CleverCrow.Fluid.UniqueIds.UniqueIdRepairs {
                     _searchedScenes.ForEach((s) => s.HideId(error.Id));
                 }
 
-                var sceneSearch = new SceneSearch(_elSearchResults, scene, onFixId);
+                var sceneSearch = new SceneSearch(_elSearchResults, scene, onFixId, includeInactiveObjects);
                 _searchedScenes.Add(sceneSearch);
             });
 
